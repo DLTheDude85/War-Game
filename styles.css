@@ -1,0 +1,534 @@
+/* =============================================================================
+   styles.css
+   -----------------------------------------------------------------------------
+   Casino-style look for the War card game: green felt table, wood rail, gold
+   accents, ivory playing cards with burgundy backs.
+   Sections, in order:
+     1. Colors and sizes (change the look of the whole game from here)
+     2. Global reset and page background
+     3. Title and instructions
+     4. The table (felt, wood rail, each player's side)
+     5. Face-down piles (the decks)
+     6. Cards (face up, face down, highlights)
+     7. Message box
+     8. Buttons and links
+     9. Screen-reader-only text
+    10. Small screens and accessibility preferences
+   ============================================================================= */
+
+
+/* ---- 1. Colors and sizes ----
+   CSS variables: defined once here, used everywhere below. */
+:root {
+  /* Felt and wood */
+  --felt-dark: #0a2f1c;
+  --felt-mid: #0f5a35;
+  --felt-light: #1b7f4f;
+  --wood-light: #8a5a2b;
+  --wood: #4e2c12;
+  --wood-dark: #2b1707;
+
+  /* Accents and text */
+  --gold: #d4af37;
+  --gold-light: #f3d982;
+  --cream: #fffaf0;
+  --ink: #1b1b1b;
+  --suit-red: #c1272d;
+
+  /* Card backs */
+  --burgundy: #8e1b2d;
+  --burgundy-dark: #5f0f1c;
+
+  /* Card size. Everything on a card (suit symbol, corner labels, overlap
+     between cards) is based on --card-w so it all scales together.
+     clamp(smallest, preferred, largest) makes cards shrink on phones. */
+  --card-w: clamp(3.75rem, 19vw, 6rem);
+  --card-h: calc(var(--card-w) * 1.4);          /* standard playing-card proportions */
+  --card-overlap: calc(var(--card-w) * -0.58);  /* how far cards overlap in a war */
+}
+
+
+/* ---- 2. Global reset and page background ---- */
+
+/* Makes width/height include borders and padding, so sizes behave
+   predictably. Applies to every element and the ::before / ::after parts. */
+*, *::after, *::before {
+  box-sizing: border-box;
+}
+
+/* The page: a dark green "casino room" that fades lighter toward the top.
+   background-attachment: fixed keeps the gradient the size of the screen so
+   it never repeats in bands on tall pages. */
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh; /* better on phones with a moving address bar */
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+  background-color: var(--felt-dark);
+  background-image: radial-gradient(ellipse at top, #14502f 0%, var(--felt-dark) 70%);
+  background-attachment: fixed;
+  color: var(--cream);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* A centered column that holds everything. */
+.game {
+  width: min(100%, 40rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+
+/* ---- 3. Title and instructions ---- */
+.game-header {
+  text-align: center;
+}
+
+/* Row of decorative suit symbols above the title. */
+.suits {
+  margin: 0;
+  font-size: 1.25rem;
+  letter-spacing: 0.6em;
+  padding-left: 0.6em; /* balances the extra space after the last symbol */
+  color: var(--cream);
+}
+
+.suits .red {
+  color: #e8575d; /* a lighter red so it stays readable on dark green */
+}
+
+/* The "WAR" title in gold with a raised, embossed look. */
+.game-title {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.75rem, 9vw, 4rem);
+  letter-spacing: 0.25em;
+  padding-left: 0.25em;
+  line-height: 1.1;
+  color: var(--gold);
+  text-shadow: 0 2px 0 #7a5c10, 0 5px 14px rgba(0, 0, 0, 0.6);
+}
+
+.hint {
+  margin: 0.5rem auto 0;
+  max-width: 30rem;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #d9e6dd;
+}
+
+
+/* ---- 4. The table ---- */
+
+/* The felt surface. The wood rail and gold trim around it are drawn with
+   box-shadow (several rings, listed from innermost to outermost). `inset`
+   shadows are drawn INSIDE the table: a thin gold line and a dark vignette. */
+.table {
+  margin: 13px; /* leaves room for the rail, which is drawn outside the table */
+  padding: clamp(0.75rem, 3vw, 1.5rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  border-radius: 1.5rem;
+  cursor: pointer;     /* the whole table can be clicked to play */
+  user-select: none;   /* stops text being highlighted by fast clicking */
+  /* The faint diagonal stripes imitate felt; the radial gradient is the
+     lighter pool of light in the middle of the table. */
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 4px),
+    radial-gradient(ellipse at center, var(--felt-light) 0%, var(--felt-mid) 55%, #0b4328 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(212, 175, 55, 0.75),  /* gold trim line */
+    inset 0 0 60px rgba(0, 0, 0, 0.5),         /* darker edges (vignette) */
+    0 0 0 3px var(--wood-light),               /* wood rail: highlight edge */
+    0 0 0 11px var(--wood),                    /* wood rail: main wood */
+    0 0 0 13px var(--wood-dark),               /* wood rail: dark outer edge */
+    0 24px 50px rgba(0, 0, 0, 0.55);           /* shadow on the room floor */
+}
+
+/* One player's area: a small label, then the deck pile and the card slot. */
+.side {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.side-label {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+
+/* Deck pile on the left, flipped cards on the right. */
+.side-cards {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 4vw, 1.5rem);
+}
+
+/* Where flipped cards land. Always as tall as a card, and always wide enough
+   for a full spread of MAX_VISIBLE_CARDS (5) overlapping cards. Reserving the
+   room up front means the deck pile doesn't slide sideways when a war happens.
+   (Width = one full card + 4 more cards, each showing 42% of its width.) */
+.card-slot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: var(--card-h);
+  width: calc(var(--card-w) * 2.68);
+}
+
+/* An empty slot shows a dashed outline of where the first card will go. */
+.card-slot:empty::before {
+  content: "";
+  width: var(--card-w);
+  height: 100%;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 0.5rem;
+}
+
+
+/* ---- 5. Face-down piles (the decks) ---- */
+
+/* Shared look of every card back: a burgundy crosshatch pattern with a cream
+   border, like a real card. Used by the decks AND face-down cards in a war. */
+.deck,
+.card-back {
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.12) 0 5px, transparent 5px 10px),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.12) 0 5px, transparent 5px 10px),
+    linear-gradient(135deg, var(--burgundy), var(--burgundy-dark));
+  border: 3px solid var(--cream);
+  border-radius: 0.5rem;
+}
+
+/* The pile itself. The stacked shadows (alternating cream and burgundy,
+   moving down and to the right) make it look like a thick stack of cards. */
+.deck {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: none;
+  width: var(--card-w);
+  height: var(--card-h);
+  box-shadow:
+    1px 1px 0 var(--burgundy-dark),
+    2px 2px 0 var(--cream),
+    3px 3px 0 var(--burgundy-dark),
+    4px 4px 0 var(--cream),
+    6px 8px 12px rgba(0, 0, 0, 0.55);
+}
+
+/* The number of cards left, shown on a gold chip in the middle of the pile. */
+.deck-count {
+  display: grid;
+  place-items: center;
+  min-width: 2.1em;
+  height: 2.1em;
+  padding: 0 0.3em;
+  border-radius: 999px;
+  background: linear-gradient(var(--gold-light), var(--gold));
+  border: 2px solid #8a6a12;
+  color: #2a1a05;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(0.95rem, 3.6vw, 1.2rem);
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+
+/* ---- 6. Cards ---- */
+
+/* Base look shared by every card on the table. Cards "deal in" with a short
+   slide-and-fade (see @keyframes deal). */
+.card {
+  position: relative; /* lets the corner labels sit inside the card */
+  flex: none;
+  width: var(--card-w);
+  height: var(--card-h);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: calc(var(--card-w) * 0.5); /* size of the big suit symbol */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+  animation: deal 0.3s ease-out both;
+}
+
+/* Cards after the first overlap the one before, fanning out to the right. */
+.card + .card {
+  margin-left: var(--card-overlap);
+}
+
+/* Face-up cards: ivory paper with a thin edge. */
+.card.face {
+  background: linear-gradient(160deg, #ffffff, var(--cream) 60%, #f1e8d2);
+  border: 1px solid #cfc3a6;
+}
+
+.card.red {
+  color: var(--suit-red);
+}
+
+.card.black {
+  color: var(--ink);
+}
+
+/* The small corner labels (for example "K ♥").
+   content: attr(data-value) pulls the text from the card's data-value
+   attribute set in deck.js, so no extra HTML elements are needed. */
+.card.face::before,
+.card.face::after {
+  position: absolute;
+  content: attr(data-value);
+  font-size: calc(var(--card-w) * 0.2);
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Top-left corner label. */
+.card.face::before {
+  top: 0.3rem;
+  left: 0.3rem;
+}
+
+/* Bottom-right corner label, rotated 180 degrees like a real playing card. */
+.card.face::after {
+  bottom: 0.3rem;
+  right: 0.3rem;
+  transform: rotate(180deg);
+}
+
+/* A face-down stack that holds the oldest cards in a long chain of wars.
+   Shows a gold "+N" badge (N = number of cards hidden in the stack). */
+.card-back.stack {
+  justify-content: flex-start;   /* the next card covers the right side, so put the badge on the left */
+  padding-left: 0.2rem;
+}
+
+.card-back.stack::after {
+  content: attr(data-count);
+  padding: 0.1em 0.3em;
+  border-radius: 999px;
+  background: linear-gradient(var(--gold-light), var(--gold));
+  border: 2px solid #8a6a12;
+  color: #2a1a05;
+  font-size: calc(var(--card-w) * 0.2);
+  font-weight: 700;
+}
+
+/* Result highlights, added by script.js after a flip. */
+.card.winner {
+  z-index: 2; /* sit above neighbouring cards so the glow isn't covered */
+  box-shadow: 0 0 0 3px var(--gold), 0 0 22px 5px rgba(243, 217, 130, 0.8);
+}
+
+.card.loser {
+  filter: brightness(0.75); /* dim the card that lost */
+}
+
+.card.tie {
+  z-index: 2;
+  box-shadow: 0 0 0 3px #ff9f43, 0 0 20px 4px rgba(255, 159, 67, 0.75);
+}
+
+/* The "deal in" animation: starts slightly above, small and see-through,
+   then settles into place. */
+@keyframes deal {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* ---- 7. Message box ---- */
+
+/* The box between the two players. min-height is tall enough for the longest
+   message, so the table doesn't jump when the message changes. */
+.status {
+  width: min(100%, 28rem);
+  min-height: 7rem;
+  padding: 0.6rem 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2rem;
+  text-align: center;
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+}
+
+.status-main {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.25rem, 4.6vw, 1.65rem);
+  font-weight: 700;
+  color: var(--cream);
+}
+
+.status-detail {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  color: #e8e1cc;
+}
+
+/* Headline color changes with the kind of message (set by script.js through
+   the data-kind attribute). All colors are light enough to read on the dark
+   box. */
+.status[data-kind="win"] .status-main { color: #8dffb8; }       /* you won the round */
+.status[data-kind="lose"] .status-main { color: #ffa59a; }      /* computer won the round */
+.status[data-kind="war"] .status-main { color: #ffd166; }       /* tie: war! */
+.status[data-kind="game-win"] .status-main { color: var(--gold-light); }
+.status[data-kind="game-lose"] .status-main { color: #ff8f8f; }
+.status[data-kind="game-tie"] .status-main { color: var(--gold-light); }
+
+/* The war and end-of-game messages also get a colored border. */
+.status[data-kind="war"] { border-color: #ff9f43; }
+.status[data-kind="game-win"],
+.status[data-kind="game-tie"] { border-color: var(--gold); }
+.status[data-kind="game-lose"] { border-color: #ff8f8f; }
+
+
+/* ---- 8. Buttons and links ---- */
+
+/* Holds the main button and the "Back to Games" link, centered. */
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+/* The main button: a gold casino-chip style. */
+.action-btn {
+  min-width: 13rem;
+  padding: 0.9rem 2rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2a1a05;
+  background: linear-gradient(#f6dc8a, var(--gold) 60%, #b8901c);
+  border: 2px solid #8a6a12;
+  border-radius: 999px;
+  cursor: pointer;
+  /* The solid dark shadow underneath makes it look like a raised button. */
+  box-shadow: 0 4px 0 #7a5c10, 0 8px 16px rgba(0, 0, 0, 0.4);
+  transition: transform 0.1s, box-shadow 0.1s, filter 0.15s;
+}
+
+.action-btn:hover {
+  filter: brightness(1.07);
+}
+
+/* Pressing it pushes the button down into its shadow. */
+.action-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #7a5c10, 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* During a war the button turns red so it stands out. White text on this red
+   still meets contrast guidelines. */
+.action-btn[data-phase="war"] {
+  color: #ffffff;
+  background: linear-gradient(#cf3a30, #b3261e 60%, #8f1a14);
+  border-color: #5f100c;
+  box-shadow: 0 4px 0 #5f100c, 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.action-btn[data-phase="war"]:active {
+  box-shadow: 0 1px 0 #5f100c, 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* The "Back to Games" link, styled as a quieter outlined button. */
+.back-link {
+  display: inline-block;
+  padding: 0.7rem 1.5rem; /* roomy enough for a finger on a phone */
+  color: var(--cream);
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid rgba(255, 250, 240, 0.6);
+  border-radius: 999px;
+  transition: background-color 0.15s;
+}
+
+.back-link:hover {
+  background-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Visible keyboard focus ring for anyone navigating with Tab. :focus-visible
+   shows it for keyboard users but not after a mouse click. */
+.action-btn:focus-visible,
+.back-link:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 4px;
+}
+
+/* Only shown when JavaScript is off. */
+.noscript {
+  text-align: center;
+  color: var(--gold-light);
+}
+
+
+/* ---- 9. Screen-reader-only text ----
+   Hides text visually but keeps it available to screen readers. (Not
+   display:none, which would hide it from them too.) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* ---- 10. Small screens and accessibility preferences ---- */
+
+/* Phones: tighter spacing. (The cards themselves already shrink through
+   --card-w in section 1.) */
+@media screen and (max-width: 480px) {
+  body {
+    padding: 0.5rem;
+  }
+
+  .hint {
+    font-size: 0.85rem;
+  }
+
+  .action-btn {
+    width: 100%; /* a big, easy-to-tap button */
+  }
+}
+
+/* For visitors whose device is set to "reduce motion": turn off the card
+   dealing and button animations. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

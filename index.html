@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>War Card Game | DevinLeeTech</title>
+    <!-- Game logic. type="module" lets script.js use import (it loads deck.js)
+       and makes the browser wait until the page is ready before running it. -->
+  <script src="script.js" type="module"></script>
+  <link rel="stylesheet" href="styles.css">
+<!-- SEO:START (written by tools/update-seo.py - do not edit by hand; change the PAGES table in that script instead) -->
+<meta name="description" content="Play the classic card game War against the computer in your browser. The higher card wins each round.">
+<link rel="canonical" href="https://devinleetech.com/games/war/">
+<meta property="og:site_name" content="DevinLeeTech">
+<meta property="og:type" content="website">
+<meta property="og:title" content="War Card Game | DevinLeeTech">
+<meta property="og:description" content="Play the classic card game War against the computer in your browser. The higher card wins each round.">
+<meta property="og:url" content="https://devinleetech.com/games/war/">
+<meta property="og:image" content="https://devinleetech.com/images/social/games-war.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="War Card Game">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="War Card Game | DevinLeeTech">
+<meta name="twitter:description" content="Play the classic card game War against the computer in your browser. The higher card wins each round.">
+<meta name="twitter:image" content="https://devinleetech.com/images/social/games-war.jpg">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#070b14">
+<!-- SEO:END -->
+</head>
+<body>
+  <main class="game">
+
+    <!-- ===== Title and instructions ===== -->
+    <header class="game-header">
+      <!-- Decorative row of suit symbols (hidden from screen readers) -->
+      <p class="suits" aria-hidden="true">
+        <span>♠</span><span class="red">♥</span><span>♣</span><span class="red">♦</span>
+      </p>
+      <h1 class="game-title">War</h1>
+      <p class="hint">
+        Flip a card. The higher card wins both. Matching cards mean WAR!
+        Click the table or press Space or Enter to play.
+      </p>
+    </header>
+
+    <!-- ===== The card table =====
+         Clicking anywhere on the table advances the game (a convenience for
+         mouse and touch users). Keyboard and screen-reader users use the
+         button underneath instead.
+         From top to bottom: computer, message, player. -->
+    <div class="table">
+
+      <!-- Computer's side -->
+      <section class="side computer-side" aria-labelledby="computer-label">
+        <h2 class="side-label" id="computer-label">Computer</h2>
+        <div class="side-cards">
+          <!-- Face-down pile; script.js fills in the card count and the
+               spoken label -->
+          <div class="deck computer-deck" role="img" aria-label="Computer deck">
+            <span class="deck-count" aria-hidden="true"></span>
+          </div>
+          <!-- Where the computer's flipped cards appear -->
+          <div class="card-slot computer-card-slot" role="group" aria-label="Computer's cards"></div>
+        </div>
+      </section>
+
+      <!-- Game messages. role="status" + aria-live="polite" makes screen
+           readers announce every change here without interrupting. -->
+      <div class="status" role="status" aria-live="polite" aria-atomic="true" data-kind="ready">
+        <p class="status-main"></p>      <!-- headline, e.g. "You win the round!" -->
+        <p class="status-detail"></p>    <!-- the details, e.g. which cards won -->
+        <span class="sr-only status-sr"></span> <!-- extra info for screen readers only -->
+      </div>
+
+      <!-- Player's side -->
+      <section class="side player-side" aria-labelledby="player-label">
+        <h2 class="side-label" id="player-label">You</h2>
+        <div class="side-cards">
+          <div class="deck player-deck" role="img" aria-label="Your deck">
+            <span class="deck-count" aria-hidden="true"></span>
+          </div>
+          <div class="card-slot player-card-slot" role="group" aria-label="Your cards"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== Controls ===== -->
+    <div class="controls">
+      <!-- The main game button. script.js changes its label as the game moves
+           along (Flip Card / Go to War! / Next Round / Play Again). -->
+      <button type="button" class="action-btn" data-phase="ready">Flip Card</button>
+
+      <!-- Takes the player back to the site's Games page. "../../" means "up two folders"
+           (out of war/ and games/), so it works on any host or sub-folder. -->
+      <a class="back-link" href="../../games.html">&larr; Back to Games</a>
+    </div>
+
+    <!-- Shown only if the visitor has JavaScript turned off. -->
+    <noscript>
+      <p class="noscript">This game needs JavaScript. Please turn it on and reload the page.</p>
+    </noscript>
+  </main>
+</body>
+</html>
